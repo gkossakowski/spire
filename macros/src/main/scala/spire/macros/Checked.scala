@@ -3,11 +3,16 @@ package spire.macros
 import scala.language.existentials
 
 import language.experimental.macros
-import scala.reflect.macros.Context
 
 case class ArithmeticOverflowException(message: String) extends ArithmeticException(message)
 
+// This is Scala reflection source compatibility hack between Scala 2.10 and 2.11
+private object CompatForChecked { object blackbox { type Context = scala.reflect.macros.Context }  }; import CompatForChecked._
+
 object Checked {
+  import scala.reflect.macros._
+  import blackbox.Context
+  import CheckedRewriterOuter.CheckedRewriter
   /**
    * Rewrites the expression provided to check many Int/Long arithmetic
    * operations for overflow (specifically +, -, *, / and unary_-). If an
@@ -90,6 +95,10 @@ object Checked {
   }
 }
 
+private[macros] object CheckedRewriterOuter {
+  import scala.reflect.macros._
+  import blackbox.Context
+
 private[macros] case class CheckedRewriter[C <: Context](c: C) {
   import c.universe._
 
@@ -148,4 +157,6 @@ private[macros] case class CheckedRewriter[C <: Context](c: C) {
   private object LongRewriter extends Rewriter[Long]
 
   private object IntRewriter extends Rewriter[Int]
+}
+
 }

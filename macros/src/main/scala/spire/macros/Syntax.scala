@@ -2,6 +2,13 @@ package spire.macros
 
 import scala.reflect.macros.Context
 
+// This is Scala reflection source compatibility hack between Scala 2.10 and 2.11
+private object CompatForSyntax { object blackbox { type Context = scala.reflect.macros.Context }  }; import CompatForSyntax._
+
+object SyntaxOuter {
+    import scala.reflect.macros._
+  import blackbox.Context
+
 case class SyntaxUtil[C <: Context with Singleton](val c: C) {
   import c.universe._
   import definitions._
@@ -225,4 +232,6 @@ v     */
     import c.universe._
     c.Expr[Unit](q"cforRange($r1)(i => cforRange($r2)(j => $body(i, j)))")
   }
+}
+
 }

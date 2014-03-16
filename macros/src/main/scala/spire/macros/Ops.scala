@@ -2,10 +2,16 @@ package spire.macrosk
 
 import scala.reflect.macros.Context
 
+// This is Scala reflection source compatibility hack between Scala 2.10 and 2.11
+private object CompatForOps { object blackbox { type Context = scala.reflect.macros.Context }  }; import CompatForOps._
+
 /**
  * This trait has some nice methods for working with implicit Ops classes.
  */
 trait Ops {
+
+  import scala.reflect.macros._
+  import blackbox.Context
 
   /**
    * Given context, this method rewrites the tree to call the desired method
